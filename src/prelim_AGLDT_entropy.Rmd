@@ -26,6 +26,7 @@ require(xml2)
 require(dplyr)
 require(stringr)
 require(magrittr)
+require(entropy)
 
 ```
 
@@ -33,6 +34,7 @@ require(magrittr)
 * **dplyr** is "a grammar of data manipulation." It allows easier handling of tabular data.
 * **stringr** is a package supporting character manipulation. It facilitates dealing with text strings.
 * **magrittr** provides an easy to use "pipe-like operator" and supporting functions for help in writing readable code.
+* **entropy** is a package for calculating informational entropy.
 
 ***
 ***
@@ -526,7 +528,14 @@ The loop above takes the values in the first column of the input tibble **entr.t
 * **H.summed.v <- H.holder.v %>%  sum()** finishes the entropy calculation by summing the expected values for each possible outcome of the dependent variable. The possible values are based on the number of possible outcomes. Because dependency direction can have two outcomes, it highest entropy is 1.0 ($log_2(2)$). Entropy is highest when probability is equally distributed among possible outcomes. Entropy (= possible information) is lowest when all probability mass is associated with one outcome. The lowest entropy value for a variable is 0: for example, if a definite article is always followed by its parent, the order of the words holds no information.
 
 
+```{r}
+entr.tib$count[1:2] %>%
+  entropy(unit = "log2")
 
+
+```
+
+* It is not a bad idea to check you work with the many packages available in R. This code inputs frequency counts from the first two rows of **entr.tib** to the function **entropy()** from the package of the same name. It is reassuring to see that the results match our calculations.
 
 
 
