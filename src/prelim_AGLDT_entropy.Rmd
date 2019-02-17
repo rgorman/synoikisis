@@ -453,8 +453,9 @@ entr.tib <- result.tib %>%
 
 ```
 
-* The **group_by()** function is an easy way to condition variables. This function creates a grouped data frame.  Various calculations can then be perfomred on the groups. 
-* Here **group_by(part_of_speech, arc_direction)** takes the imput tibble and generates a new tibble with 18 rows. There are nine parts-of-speech, so the result of that grouping is a nine-row tibble. There are two possible dependency-directions, for every word. Thus, associating every part-of-speech with the relevant data for word order produces 18 rows total.
+* The **group_by()** function is an easy way to condition variables. This function creates a grouped data frame.  Various calculations can then be performed on the groups. 
+* Here **group_by(part_of_speech, arc_direction)** takes the input tibble and generates a new tibble with 18 rows. There are nine parts-of-speech, so the result of that grouping is a nine-row tibble. There are two possible dependency-directions, for every word. Thus, associating every part-of-speech with the relevant data for word order produces 18 rows total.
+* The function **summarize()** applies "an aggregating or summary function to each group." Here the function applied is **n()**, which returns the count of the occurrence of the groups to which it is applied. For example, Polybius Book 1 has 1560 adjectives with dependency parent following and 874 with dependency parent preceding. Since entropy is based on frequency, counting the occurrence is basic. The argument **count =  n()** for the **summarize()** function, tells R to add a column called "count" containing the output of **n()**. 
 
 
 
@@ -463,6 +464,12 @@ entr.tib <- result.tib %>%
 
 
 ```{r}
+
+
+entr.tib <- mutate(entr.tib, probs = NA)
+entr.tib <- mutate(entr.tib, surprisal = NA)
+entr.tib <- mutate(entr.tib, entropy = NA)
+entr.tib <- mutate(entr.tib, summed_entropy = NA)
 
 
 z <- unique(entr.tib[, 1]) %>%
@@ -504,6 +511,8 @@ for (j in seq_along(z)) {
 
 
 ```
+
+
 
 
 
