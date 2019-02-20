@@ -44,7 +44,7 @@ require(entropy)
 
 ```{r}
 
-input.dir <- "." # sets this object to current directory
+input.dir <- "../input_data/" # sets this directory holding treebank files. This code must be adjusted to reflect your own directory structure.
 
 files.v <- dir(path=input.dir, pattern=".*xml") # A vector with names of each XML file  from input directory.
 
@@ -58,7 +58,7 @@ doc.xml <- read_xml(file.path(input.dir, files.v[i]))
 
 * The **files.v** vector can be used to loop through all treebank files in a directory. We will not use this loop in this demo, but will handle the files individually for pedagogical purposes.
 
-* The **read_xml()** function here takes (via the **file.path()** function) a directory and file name and returns an R object, here named **doc.xml**. This object maintains the structure of the XML file. It is a good idea as quickly as possible to move the data from this XML structure (to a list or matrix, etc). XML objects can be difficult to manipulate in R.
+* The **read_xml()** function here takes (via the **file.path()** function) a directory and file name and returns an R object, here named **doc.xml**. This object maintains the structure of the XML file. It is a good idea as quickly as possible to move the data from this XML structure (to a list or matrix, etc). XML objects can be difficult to manipulate in R. **Note that you should specify which file in the** file.v **vector that you want to work on via the subsetting function [...].**
 
 
 ***
@@ -350,37 +350,42 @@ for (k in seq_len(nrow(sent.tib))) {
   if (str_detect(sent.tib$postag[k], "^-")) {
     
   } else {
-    postag <-  str_extract(sent.tib$postag[k], "^[a-z]")
     
-    if (postag == "v") {
-      sent.tib$part_of_speech[k] <- "verb"
-    }
-    if (postag == "n") {
-      sent.tib$part_of_speech[k] <- "noun"
-    }
-    if (postag == "p") {
-      sent.tib$part_of_speech[k] <- "pronoun"
-    }
-    if (postag == "c") {
-      sent.tib$part_of_speech[k] <- "conjunction"
-    }
-    if (postag == "d") {
-      sent.tib$part_of_speech[k] <- "adverb"
-    } 
-    if (postag == "l") {
-      sent.tib$part_of_speech[k] <- "def_article"
-    }
-    if (postag == "r") {
-      sent.tib$part_of_speech[k] <- "preposition"
-    }
-    if (postag == "a") {
-      sent.tib$part_of_speech[k] <- "adjective"
-    }
-    if (postag == "u") {
-      sent.tib$part_of_speech[k] <- "punctuation"
-    }
-    if (postag == "NA") {
-      sent.tib$part_of_speech[k] <- NA
+    if (str_detect(sent.tib$postag[k], "^[a-z]") ) { # This line needs annotation!!
+      
+      postag <-  str_extract(sent.tib$postag[k], "^[a-z]")
+      
+      if (postag == "v") {
+        sent.tib$part_of_speech[k] <- "verb"
+      }
+      if (postag == "n") {
+        sent.tib$part_of_speech[k] <- "noun"
+      }
+      if (postag == "p") {
+        sent.tib$part_of_speech[k] <- "pronoun"
+      }
+      if (postag == "c") {
+        sent.tib$part_of_speech[k] <- "conjunction"
+      }
+      if (postag == "d") {
+        sent.tib$part_of_speech[k] <- "adverb"
+      } 
+      if (postag == "l") {
+        sent.tib$part_of_speech[k] <- "def_article"
+      }
+      if (postag == "r") {
+        sent.tib$part_of_speech[k] <- "preposition"
+      }
+      if (postag == "a") {
+        sent.tib$part_of_speech[k] <- "adjective"
+      }
+      if (postag == "u") {
+        sent.tib$part_of_speech[k] <- "punctuation"
+      }
+      if (postag == "NA") {
+        sent.tib$part_of_speech[k] <- NA
+      }
+      
     }
     
   }
