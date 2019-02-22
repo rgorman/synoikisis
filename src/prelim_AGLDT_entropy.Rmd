@@ -48,7 +48,7 @@ input.dir <- "../input_data/" # sets this directory holding treebank files. This
 
 files.v <- dir(path=input.dir, pattern=".*xml") # A vector with names of each XML file  from input directory.
 
-doc.xml <- read_xml(file.path(input.dir, files.v[i]))
+doc.xml <- read_xml(file.path(input.dir, files.v[1]))
 
 ```
 
@@ -201,37 +201,42 @@ for (k in seq_len(nrow(sent.tib))) {
   if (str_detect(sent.tib$postag[k], "^-")) {
     
   } else {
-    postag <-  str_extract(sent.tib$postag[k], "^[a-z]")
     
-    if (postag == "v") {
-      sent.tib$part_of_speech[k] <- "verb"
-    }
-    if (postag == "n") {
-      sent.tib$part_of_speech[k] <- "noun"
-    }
-    if (postag == "p") {
-      sent.tib$part_of_speech[k] <- "pronoun"
-    }
-    if (postag == "c") {
-      sent.tib$part_of_speech[k] <- "conjunction"
-    }
-    if (postag == "d") {
-      sent.tib$part_of_speech[k] <- "adverb"
-    } 
-    if (postag == "l") {
-      sent.tib$part_of_speech[k] <- "def_article"
-    }
-    if (postag == "r") {
-      sent.tib$part_of_speech[k] <- "preposition"
-    }
-    if (postag == "a") {
-      sent.tib$part_of_speech[k] <- "adjective"
-    }
-    if (postag == "u") {
-      sent.tib$part_of_speech[k] <- "punctuation"
-    }
-    if (postag == "NA") {
-      sent.tib$part_of_speech[k] <- NA
+    if (str_detect(sent.tib$postag[k], "^[a-z]") ) {
+      
+      postag <-  str_extract(sent.tib$postag[k], "^[a-z]")
+      
+      if (postag == "v") {
+        sent.tib$part_of_speech[k] <- "verb"
+      }
+      if (postag == "n") {
+        sent.tib$part_of_speech[k] <- "noun"
+      }
+      if (postag == "p") {
+        sent.tib$part_of_speech[k] <- "pronoun"
+      }
+      if (postag == "c") {
+        sent.tib$part_of_speech[k] <- "conjunction"
+      }
+      if (postag == "d") {
+        sent.tib$part_of_speech[k] <- "adverb"
+      } 
+      if (postag == "l") {
+        sent.tib$part_of_speech[k] <- "def_article"
+      }
+      if (postag == "r") {
+        sent.tib$part_of_speech[k] <- "preposition"
+      }
+      if (postag == "a") {
+        sent.tib$part_of_speech[k] <- "adjective"
+      }
+      if (postag == "u") {
+        sent.tib$part_of_speech[k] <- "punctuation"
+      }
+      if (postag == "NA") {
+        sent.tib$part_of_speech[k] <- NA
+      }
+      
     }
     
   }
@@ -243,6 +248,7 @@ for (k in seq_len(nrow(sent.tib))) {
 
 * **sent.tib <- sent.tib %>% mutate(part_of_speech = NA)** creates a new column in **sent.tib** and populates it with the logical value NA
 * the condition **str_detect(sent.tib$postag[k], "^-")** checks the first character in the string in each "postag" column cell. Using the RegEx expression "^-", the condition is TRUE if the first character is a dash, indicating that no part of speech has been assigned to this token. If the condition is TRUE, the rest of the loop is skipped.
+* The condition **if (str_detect(sent.tib$postag[k], "^[a-z]") )** checks for empty "postag" cells. If the entry contains no string, the rest of the loop is skipped. This step is an *ad hoc* way to handle errors and is certainly not optimal.
 
 
 
@@ -301,59 +307,59 @@ The following loop strings together all the processes applied above to **sent.ti
 for (i in seq_along(sent.xml)) {
   
   word.l <- sent.xml[[i]] %>%
-  xml_find_all("word") %>%
-  xml_attrs()
+    xml_find_all("word") %>%
+    xml_attrs()
   
   word.l <- word.l[which(lengths(word.l) == 7)]
-
-sent.workng.m <- unlist(word.l)  %>%
-  matrix(ncol = 7, byrow = TRUE)
-
-colnames(sent.workng.m) <- c("id", "form", "lemma", "postag", "relation", "head", "cite")
-
-sent.tib <-  as_tibble(sent.workng.m)
-
-sent.tib$id <- sent.tib$id %>%
-  as.numeric()
-
-sent.tib$head <- sent.tib$head %>%
-  as.numeric()
-
   
-sent.tib <- sent.tib %>%
-  mutate(arc_direction = NA)
-
-sent.tib <- sent.tib[- which(str_detect(sent.tib$relation, "Aux[xkgXKG]") == TRUE) , ]
-
-for (j in seq_len(nrow(sent.tib))) {
+  sent.workng.m <- unlist(word.l)  %>%
+    matrix(ncol = 7, byrow = TRUE)
   
-  if (is.numeric(sent.tib$head[j]) ) {
+  colnames(sent.workng.m) <- c("id", "form", "lemma", "postag", "relation", "head", "cite")
+  
+  sent.tib <-  as_tibble(sent.workng.m)
+  
+  sent.tib$id <- sent.tib$id %>%
+    as.numeric()
+  
+  sent.tib$head <- sent.tib$head %>%
+    as.numeric()
+  
+  
+  sent.tib <- sent.tib %>%
+    mutate(arc_direction = NA)
+  
+  sent.tib <- sent.tib[- which(str_detect(sent.tib$relation, "Aux[xkgXKG]") == TRUE) , ]
+  
+  for (j in seq_len(nrow(sent.tib))) {
     
-    if (sent.tib$head[j] %>%
-        is_in( sent.tib$id)) {
+    if (is.numeric(sent.tib$head[j]) ) {
       
-      
-      if (sent.tib$id[j] < sent.tib$head[j]) {sent.tib$arc_direction[j] <- "parent_follows"}
-      if (sent.tib$id[j] > sent.tib$head[j]) {sent.tib$arc_direction[j] <- "parent_precedes"}
-      
-      
+      if (sent.tib$head[j] %>%
+          is_in( sent.tib$id)) {
+        
+        
+        if (sent.tib$id[j] < sent.tib$head[j]) {sent.tib$arc_direction[j] <- "parent_follows"}
+        if (sent.tib$id[j] > sent.tib$head[j]) {sent.tib$arc_direction[j] <- "parent_precedes"}
+        
+        
+      }
     }
+    
   }
   
-}
-
-sent.tib <- sent.tib %>%
-  mutate(part_of_speech = NA)
-
-for (k in seq_len(nrow(sent.tib))) {
+  sent.tib <- sent.tib %>%
+    mutate(part_of_speech = NA)
   
-  if (str_detect(sent.tib$postag[k], "^-")) {
+  for (k in seq_len(nrow(sent.tib))) {
     
-  } else {
-    
-    if (str_detect(sent.tib$postag[k], "^[a-z]") ) { # This line needs annotation!!
+    if (str_detect(sent.tib$postag[k], "^-")) {
       
-      postag <-  str_extract(sent.tib$postag[k], "^[a-z]")
+    } else {
+      
+      if (str_detect(sent.tib$postag[k], "^[a-z]") )
+        
+        postag <-  str_extract(sent.tib$postag[k], "^[a-z]")
       
       if (postag == "v") {
         sent.tib$part_of_speech[k] <- "verb"
@@ -390,7 +396,7 @@ for (k in seq_len(nrow(sent.tib))) {
     
   }
   
-}
+
 
 
 sent.tib <- sent.tib %>%
@@ -417,14 +423,14 @@ for (p in seq_len(nrow(sent.tib))) {
 }
 
 
- if ( i == 1) {
-    result.tib <- sent.tib
-  } else {
-    result.tib <- bind_rows(result.tib, sent.tib)
-  }
+if ( i == 1) {
+  result.tib <- sent.tib
+} else {
+  result.tib <- bind_rows(result.tib, sent.tib)
+}
 
 
-  
+
 }
 
 
