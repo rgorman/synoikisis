@@ -6,7 +6,8 @@ output: html_notebook
 
 ### The data
 
-Several AGLDT files have been provided as input for this exercise. The files are available at zzz.
+Several AGLDT files have been provided as input for this exercise. The files are available at https://github.com/rgorman/synoikisis/tree/master/input_data
+
 
 ### The R script
 The R code to compute dependency-direction entropy are given below in executable blocks. Brief explanations are also provided.
@@ -72,7 +73,7 @@ sent.xml <- xml_find_all(doc.xml, "//sentence")
 
 ```
 
-Because of the structure of the treebank files, dependency-direction entropy must be figured on a sentence by sentence basis. Thus, we extract every sentence element in the doc.xml object and store the output in sent.xml
+Because of the structure of the treebank files, dependency-direcgition entropy must be figured on a sentence by sentence basis. Thus, we extract every sentence element in the doc.xml object and store the output in sent.xml
 
 **xml_find_all()** is a useful function which extracts all XML elements which match the criterion. The function's first argument is the input object. The second argument is an xpath expression identifying the nodes of interest. XPath is a syntax for defining parts of a XML document and navigating through it.
 
