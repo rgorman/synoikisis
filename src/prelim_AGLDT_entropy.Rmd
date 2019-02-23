@@ -549,6 +549,91 @@ entr.tib$count[1:2] %>%
 * It is not a bad idea to check you work with the many packages available in R. This code inputs frequency counts from the first two rows of **entr.tib** to the function **entropy()** from the package of the same name. It is reassuring to see that the results match our calculations.
 
 
+###Dependency-direction Entropy of Nouns
+
+It is instructive to drill down to look at some conditional entropies at a more granular level. We will take nouns as our example, since it is relatively easy to picture their syntactic structure without looking back at the treebanks.
+
+
+####Extracting more restricted data
+
+```{r}
+
+entr.tib <-    result.tib %>%
+  filter(part_of_speech == "noun") %>%
+  filter(!str_detect(.$relation, "_")) %>%
+  filter(relation == "ADV" |relation == "ATR" | relation == "PNOM" | relation == "OBJ" | relation == "SBJ" ) %>%
+  na.omit() %>%
+  group_by(relation,  arc_direction) %>%
+  summarize(count =  n())
+
+
+```
+
+* This code block produces a new **entr.tib** which contains simplified data on noun entropy.
+* **result.tib %>% filter(part_of_speech == "noun")** pipes the contents of **result.tib** to the **filter()** function. This function selects rows which meet the given criteria.  Here **part_of_speech == "noun"** limits the output to rows identified in the "part_of_speech" column as "noun".
+* ** %>% filter(!str_detect(.$relation, "_"))** pipes the output of the previous line to the **filter()** function which here is set to drop all rows in which the "relation" column contains the underscore character. This step removes certain complex relations which can be omitted from a discussion of dependency-direction entropy.
+* **%>% filter(relation == "ADV" | relation == "ATR" |relation == "PNOM" | relation == "OBJ" | relation == "SBJ" )** pipes the output of the preceding line to **filter()** once again. Here the function selects rows with the most important relation labels using the "or" operator (|).
+* The rest of the code block should be familiar from the first creation of **entr.tib**. 
+
+
+####Re-calculating Entropy
+
+```{r}
+
+
+entr.tib <- mutate(entr.tib, probs = NA)
+entr.tib <- mutate(entr.tib, surprisal = NA)
+entr.tib <- mutate(entr.tib, entropy = NA)
+entr.tib <- mutate(entr.tib, summed_entropy = NA)
+
+
+z <- unique(entr.tib[, 1]) %>%
+  unlist() %>%
+  as.character()
+
+
+
+
+for (j in seq_along(z)) {
+  
+  row.traker.v  <- which(entr.tib[, 1] == z[j])
+ 
+  probability.v <- entr.tib$count[row.traker.v ] %>%
+    divide_by(entr.tib$count[row.traker.v ] %>%
+                sum() )
+  
+  entr.tib$probs[row.traker.v] <- probability.v
+  
+  surprisal.v <- probability.v %>%
+    log2() %>%
+    multiply_by(-1)
+  
+  entr.tib$surprisal[row.traker.v] <- surprisal.v
+  
+  H.holder.v <- surprisal.v %>%
+    multiply_by(probability.v)
+  
+  entr.tib$entropy[row.traker.v] <- H.holder.v
+  
+  H.summed.v <- H.holder.v %>%
+    sum()
+  
+  entr.tib$summed_entropy[row.traker.v] <- H.summed.v
+  
+  
+} 
+
+
+
+
+
+
+```
+
+* This code block is simply repeated from above.  As practice, generate a tibble with noun entropy data for several of the input files. (Be sure to rename each version of the resulting **etr.tib** to avoid overwriting your results.)   What do the results tell us about word-order differences among the various authors?
+
+
+
 
 ###############
 
