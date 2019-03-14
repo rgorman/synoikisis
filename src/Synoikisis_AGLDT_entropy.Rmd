@@ -49,7 +49,7 @@ input.dir <- "../input_data/" # sets this directory holding treebank files. This
 
 files.v <- dir(path=input.dir, pattern=".*xml") # A vector with names of each XML file  from input directory.
 
-doc.xml <- read_xml(file.path(input.dir, files.v[1]))
+doc.xml <- read_xml(file.path(input.dir, files.v[2]))
 
 ```
 
@@ -561,7 +561,7 @@ It is instructive to drill down to look at some conditional entropies at a more 
 
 entr.tib <-    result.tib %>%
   filter(part_of_speech == "noun") %>%
-  filter(!str_detect(.$relation, "_")) %>%
+  filter(!(parent_POS) == "preposition") %>%
   filter(relation == "ADV" |relation == "ATR" | relation == "PNOM" | relation == "OBJ" | relation == "SBJ" ) %>%
   na.omit() %>%
   group_by(relation,  arc_direction) %>%
@@ -572,7 +572,7 @@ entr.tib <-    result.tib %>%
 
 * This code block produces a new **entr.tib** which contains simplified data on noun entropy.
 * **result.tib %>% filter(part_of_speech == "noun")** pipes the contents of **result.tib** to the **filter()** function. This function selects rows which meet the given criteria.  Here **part_of_speech == "noun"** limits the output to rows identified in the "part_of_speech" column as "noun".
-* ** %>% filter(!str_detect(.$relation, "_"))** pipes the output of the previous line to the **filter()** function which here is set to drop all rows in which the "relation" column contains the underscore character. This step removes certain complex relations which can be omitted from a discussion of dependency-direction entropy.
+* **%>% filter(!(parent_POS) == "preposition")** limits the output to rows which are not objects of prepositions. 
 * **%>% filter(relation == "ADV" | relation == "ATR" |relation == "PNOM" | relation == "OBJ" | relation == "SBJ" )** pipes the output of the preceding line to **filter()** once again. Here the function selects rows with the most important relation labels using the "or" operator (|).
 * The rest of the code block should be familiar from the first creation of **entr.tib**. 
 
